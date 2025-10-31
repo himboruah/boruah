@@ -39,15 +39,6 @@
             background-color: #00000a;
             overflow-x: hidden;
         }
-        
-        #aurora-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
 
         .rubber-band {
             position: fixed;
@@ -197,8 +188,6 @@
     </style>
 </head>
 <body>
-    
-    <canvas id="aurora-canvas"></canvas>
 
     <div class="rubber-band top"></div>
     <div class="rubber-band bottom"></div>
@@ -235,74 +224,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const canvas = document.getElementById('aurora-canvas');
-            const ctx = canvas.getContext('2d');
-            let particles = [];
-            let time = 0;
-
-            const resizeCanvas = () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            };
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            const colors = [
-                { r: 45, g: 212, b: 191 },
-                { r: 129, g: 140, b: 248 },
-                { r: 167, g: 139, b: 250 },
-                { r: 244, g: 114, b: 182 }
-            ];
-
-            class Particle {
-                constructor() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                    this.color = colors[Math.floor(Math.random() * colors.length)];
-                    this.radius = Math.random() * 200 + 150;
-                    this.speedX = (Math.random() - 0.5) * 0.5;
-                    this.speedY = (Math.random() - 0.5) * 0.5;
-                }
-
-                update(t) {
-                    this.x += this.speedX + Math.sin(t * 0.0005 + this.x * 0.1) * 0.5;
-                    this.y += this.speedY + Math.cos(t * 0.0005 + this.y * 0.1) * 0.5;
-                    
-                    if (this.x < -this.radius) this.x = canvas.width + this.radius;
-                    if (this.x > canvas.width + this.radius) this.x = -this.radius;
-                    if (this.y < -this.radius) this.y = canvas.height + this.radius;
-                    if (this.y > canvas.height + this.radius) this.y = -this.radius;
-                }
-
-                draw() {
-                    ctx.beginPath();
-                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
-                    gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.1)`);
-                    gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
-                    ctx.fillStyle = gradient;
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            for (let i = 0; i < 15; i++) {
-                particles.push(new Particle());
-            }
-
-            function animate() {
-                time++;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                particles.forEach(p => {
-                    p.update(time);
-                    p.draw();
-                });
-
-                requestAnimationFrame(animate);
-            }
-
-            animate();
-
             const cards = document.querySelectorAll('.glass-card');
             cards.forEach(card => {
                 card.addEventListener('mousemove', (e) => {
