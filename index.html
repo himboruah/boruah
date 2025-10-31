@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boruah | The Collection</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #1c1c1c;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #ffffff;
+            --icon-color: #42a5f5;
+            --card-bg: rgba(20, 20, 30, 0.7);
+            --card-border: rgba(255, 255, 255, 0.15);
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            color: var(--text-primary);
+            line-height: 1.6;
+            background-color: #00000a;
+            overflow-x: hidden;
+        }
+        
+        #aurora-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .rubber-band {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--icon-color);
+            box-shadow: 0 0 15px 5px var(--icon-color);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
+        }
+
+        .rubber-band.visible {
+            opacity: 1;
+        }
+
+        .top { top: 0; }
+        .bottom { bottom: 0; }
+
+        header {
+            text-align: center;
+            padding: 5rem 2rem 4rem;
+        }
+
+        .header-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        main {
+            padding: 1rem 2rem;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeIn 0.7s forwards;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--icon-color), transparent) border-box;
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none; 
+        }
+
+        .glass-card:hover::before { opacity: 1; }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-icon {
+            font-size: 1.8rem;
+            color: var(--icon-color);
+        }
+        
+        .glass-card h2 { font-size: 1.6rem; font-weight: 500; }
+        .glass-card p {
+            font-size: 1rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            min-height: 55px;
+        }
+
+        .btn-modern {
+            display: inline-block;
+            padding: 0.7rem 1.6rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-decoration: none;
+            background-color: transparent;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-modern:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+
+        @media (max-width: 768px) {
+            .header-title { font-size: 2.8rem; }
+        }
+    </style>
+</head>
+<body>
+    
+    <canvas id="aurora-canvas"></canvas>
+
+    <div class="rubber-band top"></div>
+    <div class="rubber-band bottom"></div>
+
+    <header>
+        <h1 class="header-title"><i class="fas fa-archive" style="color: var(--icon-color);"></i> Project Archive</h1>
+    </header>
+
+    <main>
+        <ul class="projects-grid">
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-expand-alt"></i></div><h2>Image Resizer</h2></div><p>Adjusting scale and proportion with mindful precision.</p><a href="./imageresizer/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-file-pdf"></i></div><h2>Image to PDF</h2></div><p>Binding disparate images into a harmonious whole.</p><a href="./imagetopdf/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-magic"></i></div><h2>OCR</h2></div><p>Finding the hidden characters within the form of an image.</p><a href="./ocr/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-qrcode"></i></div><h2>QR Code Studio</h2></div><p>Shaping and revealing patterns for swift, connected exchanges.</p><a href="./qrcode/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-key"></i></div><h2>Password Generator</h2></div><p>Generating intricate keys for digital tranquility.</p><a href="./passwordgenerator/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-stopwatch-20"></i></div><h2>TOTP Generator</h2></div><p>Observing the flow of time to grant passage.</p><a href="./totpgenerator/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-shield-alt"></i></div><h2>Text & File Encryptor</h2></div><p>Guarding both words and files within layers of silent code.</p><a href="./encryptor/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-fingerprint"></i></div><h2>PGP Toolkit</h2></div><p>Forging keys and guiding messages through the cryptographic dance.</p><a href="./pgp/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-hashtag"></i></div><h2>File Hash Generator</h2></div><p>Finding the unchanging essence of a digital file.</p><a href="./filehash/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-envelope-open-text"></i></div><h2>Email Analyser</h2></div><p>Tracing the path of a message to its source.</p><a href="./emailanalyser/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-calculator"></i></div><h2>Unit Converter</h2></div><p>Finding balance between different forms of measure.</p><a href="./unitconverter/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-globe"></i></div><h2>Global Clock</h2></div><p>A tool to observe the present moment, everywhere at once.</p><a href="./worldclock/index.html" class="btn-modern" target="_blank">Launch</a></li>
+            <li class="glass-card"><div class="card-header"><div class="project-icon"><i class="fas fa-id-card"></i></div><h2>ID Card Generator</h2></div><p>A symbol of one's role in the institutional tapestry.</p><a href="./idcard/index.html" class="btn-modern" target="_blank">Launch</a></li>
+        </ul>
+    </main>
+    
+    <footer>
+        <p>© <span id="copyright-year"></span> Boruah.</p>
+	<p>Source code is open and hosted on <a href='https://github.com/himboruah/boruah' target='_blank'>GitHub</a>.</p>
+    </footer>
+    <script>
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('aurora-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let time = 0;
+
+            const resizeCanvas = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            const colors = [
+                { r: 45, g: 212, b: 191 },
+                { r: 129, g: 140, b: 248 },
+                { r: 167, g: 139, b: 250 },
+                { r: 244, g: 114, b: 182 }
+            ];
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                    this.radius = Math.random() * 200 + 150;
+                    this.speedX = (Math.random() - 0.5) * 0.5;
+                    this.speedY = (Math.random() - 0.5) * 0.5;
+                }
+
+                update(t) {
+                    this.x += this.speedX + Math.sin(t * 0.0005 + this.x * 0.1) * 0.5;
+                    this.y += this.speedY + Math.cos(t * 0.0005 + this.y * 0.1) * 0.5;
+                    
+                    if (this.x < -this.radius) this.x = canvas.width + this.radius;
+                    if (this.x > canvas.width + this.radius) this.x = -this.radius;
+                    if (this.y < -this.radius) this.y = canvas.height + this.radius;
+                    if (this.y > canvas.height + this.radius) this.y = -this.radius;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                    gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.1)`);
+                    gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
+                    ctx.fillStyle = gradient;
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < 15; i++) {
+                particles.push(new Particle());
+            }
+
+            function animate() {
+                time++;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                particles.forEach(p => {
+                    p.update(time);
+                    p.draw();
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                });
+            });
+
+            const topBand = document.querySelector('.rubber-band.top');
+            const bottomBand = document.querySelector('.rubber-band.bottom');
+            let topTimeout;
+            let bottomTimeout;
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY === 0) {
+                    clearTimeout(topTimeout);
+                    topBand.classList.add('visible');
+                    topTimeout = setTimeout(() => {
+                        topBand.classList.remove('visible');
+                    }, 500);
+                }
+
+                if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1) {
+                    clearTimeout(bottomTimeout);
+                    bottomBand.classList.add('visible');
+                    bottomTimeout = setTimeout(() => {
+                        bottomBand.classList.remove('visible');
+                    }, 500);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
