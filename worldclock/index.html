@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Clock & Time Zone Converter</title>
+  <link rel="stylesheet" href="./fontawesome/css/all.min.css" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <button id="themeToggle" aria-label="Toggle light and dark theme">
+    <i class="fas fa-cloud-moon"></i>
+  </button>
+  <button id="settingsToggle" aria-label="Open settings">
+    <i class="fas fa-cog"></i>
+  </button>
+
+  <div class="app-header-area">
+    <h1>World Clock & Time Zone Converter</h1>
+    <p class="app-tagline">Convert, compare, and coordinate instantly.</p>
+  </div>
+
+  <main>
+    <section class="card local-time-section">
+      <h2>Your Local Time</h2>
+      <div id="localTimeDisplay" class="time-display large-time"></div>
+      <div id="localTimezoneName" class="timezone-name"></div>
+      <div id="localTimezoneIndicators" class="timezone-indicators"></div>
+    </section>
+
+    <section class="card add-timezone-section">
+      <h2>Time Zones</h2>
+      <div class="input-group">
+        <div class="search-input-wrapper">
+          <input type="text" id="timezoneSearchInput" placeholder="Search city or country..." aria-label="Search for a city or country timezone" />
+          <div id="timezoneSuggestions" class="timezone-suggestions-container" role="listbox" aria-live="polite"></div>
+        </div>
+        <button id="addTimezoneBtn" aria-label="Add selected timezone">Add Time Zone</button>
+        <div id="notificationMessage" class="notification-message" aria-live="polite"></div>
+      </div>
+      <p class="explanation">Start typing a city (e.g., "New York") or a country (e.g., "Canada") to find timezones.</p>
+    </section>
+
+    <section class="card reference-time-section">
+      <h2>Reference Time</h2>
+      <div class="input-group">
+        <input type="datetime-local" id="referenceDatetimeInput" aria-label="Set a specific date and time for reference" />
+        <button id="setReferenceToCurrentBtn" aria-label="Reset reference time to current local time">Reset to Current</button>
+      </div>
+      <p class="explanation">Set a specific date and time to see how it translates across different time zones.</p>
+    </section>
+
+    <section class="card meeting-planner-button-section">
+      <h2>Meeting Planner</h2>
+      <button id="openMeetingPlannerBtn" aria-label="Open the meeting planner tool">Open Meeting Planner</button>
+      <p class="explanation">Plan a meeting time across multiple time zones to find the best slot.</p>
+    </section>
+
+    <section class="selected-timezones">
+      <h2>Tracked Time Zones <span class="drag-hint">(Drag to reorder)</span></h2>
+      <div id="timezoneCardsContainer" role="list"></div>
+      <div id="noTimezonesMessage">No time zones added yet. Use the "Add Time Zone" section above!</div>
+    </section>
+  </main>
+
+  <div id="meetingPlannerModal" class="meeting-planner-modal">
+    <div class="meeting-planner-content">
+      <button id="closeMeetingPlannerBtn" class="close-button" aria-label="Close meeting planner">&times;</button>
+      <h2>Plan a Meeting</h2>
+      <div class="meeting-planner-controls">
+        <div class="meeting-controls-row">
+          <label for="meetingPlannerDate">Select Date:</label>
+          <input type="date" id="meetingPlannerDate" aria-label="Select date for meeting" />
+
+          <label for="meetingDurationHoursInput">Meeting Duration:</label>
+          <div class="duration-inputs">
+            <input type="number" id="meetingDurationHoursInput" value="0" min="0" max="24" aria-label="Enter meeting duration in hours" />
+            <span>hours</span>
+            <input type="number" id="meetingDurationMinutesInput" value="30" min="0" max="59" aria-label="Enter meeting duration in minutes" />
+            <span>minutes</span>
+          </div>
+        </div>
+
+        <div class="meeting-controls-row meeting-time-interval-row">
+          <label for="meetingTimeInterval">Time Interval:</label>
+          <select id="meetingTimeInterval" aria-label="Select time interval for grid">
+            <option value="0.25">15 Minutes</option>
+            <option value="0.5" selected>30 Minutes</option>
+            <option value="1">60 Minutes</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="meetingTimeGrid" class="meeting-time-grid"></div>
+
+      <div class="legend">
+        <div class="legend-item business-hours">Business Hours</div>
+        <div class="legend-item non-business-hours">Non-Business Hours</div>
+        <div class="legend-item selected-meeting-time">Selected Meeting Time</div>
+      </div>
+
+      <div class="meeting-legend-description">
+        <p>This planner helps you schedule meetings across multiple time zones. Drag the block or scroll to choose a time, adjust duration using inputs above, and use the grid to compare availability across regions. Times shown are local to each selected city.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingsModal" class="settings-modal">
+    <div class="settings-modal-content">
+      <span class="close-button" id="closeSettingsModalBtn">&times;</span>
+      <h2>Settings</h2>
+      <div class="settings-options">
+        <div class="setting-item">
+          <h3>Time Format</h3>
+          <div class="radio-group" role="radiogroup" aria-label="Select time display format">
+            <label class="format-option">
+              <input type="radio" name="timeFormat" value="12" />
+              <span class="icon"><i class="fas fa-clock"></i></span>
+              <span class="text">12-Hour Format <span class="example">(e.g. 4:30 PM)</span></span>
+            </label>
+            <label class="format-option">
+              <input type="radio" name="timeFormat" value="24" />
+              <span class="icon"><i class="fas fa-clock"></i></span>
+              <span class="text">24-Hour Format <span class="example">(e.g. 16:30)</span></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <h3>Business Hours</h3>
+          <div class="business-hours-inputs">
+            <label for="businessStartHour">Start:</label>
+            <input type="time" id="businessStartHour" value="09:00" />
+            <label for="businessEndHour">End:</label>
+            <input type="time" id="businessEndHour" value="17:00" />
+            <button id="resetBusinessHoursBtn" class="reset-button" aria-label="Reset business hours to default">Reset</button>
+          </div>
+          <p class="explanation">Customize default business hours used by the meeting planner (applies to weekdays only).</p>
+        </div>
+        
+        <div class="setting-item">
+          <h3>Auto Timezone Sync</h3>
+          <label class="checkbox-option">
+            <input type="checkbox" id="autoSyncTimezoneToggle" />
+            <span>Automatically update your local timezone if system settings change</span>
+          </label>
+          <label for="timezoneSyncInterval" class="interval-label">Sync Interval:</label>
+          <select id="timezoneSyncInterval">
+            <option value="30000">Every 30 seconds</option>
+            <option value="60000" selected>Every 1 minute</option>
+            <option value="300000">Every 5 minutes</option>
+          </select>
+          <p class="explanation">Change detection runs in the background and updates your time card if your system timezone changes while the app is open.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>&copy; 2025 Boruah. All Rights Reserved.</p>
+  </footer>
+
+  <script src="./luxon.min.js"></script>
+  <script src="./timezoneData.js"></script>
+  <script src="./Sortable.min.js"></script>
+  <script src="./main.js"></script>
+</body>
+</html>

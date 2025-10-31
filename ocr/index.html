@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text Extractor</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="./tesseract.min.js"></script>
+  <script src="./heic2any.min.js"></script>
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <div class="container dropzone" aria-label="OCR tool">
+    <h1>Text Extractor</h1>
+
+    <input type="file" id="imageInput" accept="image/*,.heic" aria-label="Choose an image to extract text from" />
+    <div class="hint">or drag & drop an image here</div>
+
+    <label for="languageSelect" class="sr-only">Language</label>
+    <select id="languageSelect" aria-label="OCR language">
+      <option value="eng">English</option>
+      <option value="hin">Hindi</option>
+      <option value="asm">Assamese</option>
+      <option value="eng+hin">English + Hindi</option>
+      <option value="eng+asm">English + Assamese</option>
+      <option value="eng+hin+asm">English + Hindi + Assamese</option>
+      <option value="afr">Afrikaans</option>
+      <option value="amh">Amharic</option>
+      <option value="ara">Arabic</option>
+      <option value="asm">Assamese</option>
+      <option value="aze">Azerbaijani</option>
+      <option value="bel">Belarusian</option>
+      <option value="ben">Bengali</option>
+      <option value="bod">Tibetan</option>
+      <option value="bos">Bosnian</option>
+      <option value="bul">Bulgarian</option>
+      <option value="cat">Catalan</option>
+      <option value="ceb">Cebuano</option>
+      <option value="ces">Czech</option>
+      <option value="chi_sim">Chinese (Simplified)</option>
+      <option value="chi_tra">Chinese (Traditional)</option>
+      <option value="chr">Cherokee</option>
+      <option value="dan">Danish</option>
+      <option value="deu">German</option>
+      <option value="ell">Greek</option>
+      <option value="eng+tam">English + Tamil</option>
+      <option value="eng+tel">English + Telugu</option>
+      <option value="est">Estonian</option>
+      <option value="fas">Persian</option>
+      <option value="fin">Finnish</option>
+      <option value="fra">French</option>
+      <option value="guj">Gujarati</option>
+      <option value="heb">Hebrew</option>
+      <option value="hrv">Croatian</option>
+      <option value="hun">Hungarian</option>
+      <option value="ind">Indonesian</option>
+      <option value="isl">Icelandic</option>
+      <option value="ita">Italian</option>
+      <option value="jpn">Japanese</option>
+      <option value="kan">Kannada</option>
+      <option value="khm">Khmer</option>
+      <option value="kor">Korean</option>
+      <option value="lao">Lao</option>
+      <option value="lat">Latin</option>
+      <option value="lav">Latvian</option>
+      <option value="lit">Lithuanian</option>
+      <option value="mal">Malayalam</option>
+      <option value="mar">Marathi</option>
+      <option value="mkd">Macedonian</option>
+      <option value="mlt">Maltese</option>
+      <option value="msa">Malay</option>
+      <option value="mya">Burmese</option>
+      <option value="nep">Nepali</option>
+      <option value="nld">Dutch</option>
+      <option value="nor">Norwegian</option>
+      <option value="ori">Odia</option>
+      <option value="pan">Punjabi</option>
+      <option value="pol">Polish</option>
+      <option value="por">Portuguese</option>
+      <option value="ron">Romanian</option>
+      <option value="rus">Russian</option>
+      <option value="san">Sanskrit</option>
+      <option value="sin">Sinhala</option>
+      <option value="slk">Slovak</option>
+      <option value="slv">Slovenian</option>
+      <option value="spa">Spanish</option>
+      <option value="srp">Serbian</option>
+      <option value="swa">Swahili</option>
+      <option value="swe">Swedish</option>
+      <option value="tam">Tamil</option>
+      <option value="tel">Telugu</option>
+      <option value="tha">Thai</option>
+      <option value="tur">Turkish</option>
+      <option value="ukr">Ukrainian</option>
+      <option value="urd">Urdu</option>
+      <option value="uzb">Uzbek</option>
+      <option value="vie">Vietnamese</option>
+      <option value="yor">Yoruba</option>
+      <option value="zho">Chinese</option>
+    </select>
+
+    <div id="controls" class="hidden">
+      <button id="extractButton">Extract Text</button>
+    </div>
+
+    <div id="loading" class="hidden" aria-live="polite">
+      <div class="spinner"></div>
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div id="progressText" class="progress-text">Preparing…</div>
+    </div>
+
+    <div id="result" class="hidden">
+      <h2>Extracted Text</h2>
+      <pre id="extractedText" aria-live="polite"></pre>
+      <div>
+        <button id="downloadButton">Download .txt</button>
+        <button id="copyButton">Copy Text</button>
+        <button id="resetButton">Reset</button>
+      </div>
+    </div>
+    <p class="disclaimer" id="disclaimer">
+      🔒 All processing happens locally in your browser. Images and text never leave your device.
+    </p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Email Header Analyzer</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Email Header Analyzer</h1>
+      <p class="subtitle">
+        Paste raw headers or drop a .eml file. Get hops, auth results,
+        alignment, and exportable analysis.
+      </p>
+    </header>
+
+    <main class="container" role="main">
+      <section class="input-panel">
+        <div class="controls">
+          <label for="headerInput" class="sr-only">Raw email headers</label>
+          <textarea id="headerInput" placeholder="Paste raw email headers here..." spellcheck="false"></textarea>
+
+          <div class="btn-row">
+            <button id="analyzeBtn" class="btn primary">Analyze</button>
+            <button id="clearBtn" class="btn">Clear</button>
+
+            <div class="split">
+              <button id="sampleBtn" class="btn">Load sample ▼</button>
+              <div id="sampleMenu" class="menu" hidden>
+                <button data-sample="good">Sample: Legit message</button>
+                <button data-sample="softfail">Sample: SPF softfail</button>
+                <button data-sample="dkimfail">Sample: DKIM fail</button>
+                <button data-sample="forwarded">Sample: Forwarded (ARC)</button>
+              </div>
+            </div>
+
+            <input id="fileInput" type="file" accept=".eml,.txt" class="sr-only" />
+            <button id="uploadBtn" class="btn">Upload .eml</button>
+          </div>
+
+          <p id="validationMsg" class="validation" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="hint">
+          Tip: You can also drag-and-drop a <code>.eml</code> file anywhere on
+          this page.
+        </div>
+      </section>
+
+      <section class="results-panel">
+        <div class="panel-head">
+          <h2>Results</h2>
+          <div class="export-row">
+            <button id="copyAllBtn" class="btn">Copy Text</button>
+            <button id="copyMdBtn" class="btn">Copy Markdown</button>
+            <button id="downloadJsonBtn" class="btn">Download JSON</button>
+            <button id="downloadCsvBtn" class="btn">Download CSV</button>
+          </div>
+        </div>
+
+        <div id="result" class="output-box" aria-live="polite">
+          <div class="empty">
+            No analysis yet. Paste headers and click <strong>Analyze</strong>.
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <small>Made for quick, local analysis. No data leaves your browser.</small>
+    </footer>
+
+    <template id="analysisTemplate">
+      <section>
+        <h3>Summary</h3>
+        <ul class="kv">
+          <li><strong>From:</strong> <span data-k="from"></span></li>
+          <li><strong>To:</strong> <span data-k="to"></span></li>
+          <li><strong>Subject:</strong> <span data-k="subject"></span></li>
+          <li>
+            <strong>Date:</strong> <span data-k="dateLocal"></span>
+            <small class="muted">(raw: <span data-k="dateRaw"></span>)</small>
+          </li>
+          <li><strong>Message-ID:</strong> <span data-k="messageId"></span></li>
+          <li><strong>Return-Path:</strong> <span data-k="returnPath"></span></li>
+          <li><strong>Reply-To:</strong> <span data-k="replyTo"></span></li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>Authentication Results</h3>
+        <div class="legend">
+          <span class="badge pass">PASS</span>
+          <span class="badge fail">FAIL</span>
+          <span class="badge neutral">NEUTRAL</span>
+        </div>
+        <div class="auth-grid">
+          <div class="auth-card">
+            <h4>SPF</h4>
+            <div><strong>Result:</strong> <span data-k="spf.result" class="badge"></span></div>
+            <div><strong>Domain:</strong> <span data-k="spf.domain"></span></div>
+            <div><strong>Aligned (relaxed):</strong> <span data-k="spf.aligned" class="pill"></span></div>
+            <div><strong>Explanation:</strong> <span data-k="spf.expl"></span></div>
+          </div>
+          <div class="auth-card">
+            <h4>DKIM</h4>
+            <div><strong>Result:</strong> <span data-k="dkim.result" class="badge"></span></div>
+            <div><strong>Signing domain (d=):</strong> <span data-k="dkim.domain"></span></div>
+            <div><strong>Aligned (relaxed):</strong> <span data-k="dkim.aligned" class="pill"></span></div>
+            <div><strong>Selector (s=):</strong> <span data-k="dkim.selector"></span></div>
+          </div>
+          <div class="auth-card">
+            <h4>DMARC</h4>
+            <div><strong>Result:</strong> <span data-k="dmarc.result" class="badge"></span></div>
+            <div><strong>Policy:</strong> <span data-k="dmarc.policy"></span></div>
+            <div><strong>Disposition:</strong> <span data-k="dmarc.disposition"></span></div>
+            <div><strong>Reason:</strong> <span data-k="dmarc.reason"></span></div>
+          </div>
+        </div>
+        <p class="muted note">
+          Alignment (relaxed) means the domain in SPF’s envelope-from or DKIM’s
+          d= ends with the same organizational domain as the visible From:
+          domain.
+        </p>
+      </section>
+
+      <section>
+        <h3>Delivery Hops</h3>
+        <ol class="timeline" data-k="timeline"></ol>
+        <div class="delays" data-k="delays"></div>
+      </section>
+
+      <section>
+        <h3>Raw Received Lines</h3>
+        <ol class="mono" data-k="receivedRaw"></ol>
+      </section>
+    </template>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TOTP Generator</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>TOTP Generator</h1>
+
+    <div class="input-group">
+      <label for="secret">Secret Key or URI</label>
+      <input type="text" id="secret" placeholder="Enter your secret key" autocomplete="off" />
+      <div id="errorMsg" class="error-msg"></div>
+    </div>
+
+    <label id="advancedToggleLabel">
+      <input type="checkbox" id="advancedToggle" />
+      Show Advanced Options
+    </label>
+
+    <fieldset id="advancedSection">
+      <legend>Advanced Options</legend>
+
+      <div class="input-group">
+        <label for="mode">Mode</label>
+        <select id="mode">
+          <option value="standard">Standard</option>
+          <option value="steam">Steam</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="digits">Number of Digits</label>
+        <select id="digits">
+          <option value="6" selected>6</option>
+          <option value="8">8</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="period">Token Period (seconds)</label>
+        <select id="period">
+          <option value="30">30</option>
+          <option value="60">60</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="algorithm">Hash Algorithm</label>
+        <select id="algorithm">
+          <option value="SHA-1">SHA-1</option>
+          <option value="SHA-256">SHA-256</option>
+          <option value="SHA-512">SHA-512</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <button id="generateBtn">Generate TOTP</button>
+    <button id="scanQRBtn">Scan QR Code</button>
+
+    <div class="output">
+      <h2 id="totpLabel">Your TOTP</h2>
+      <div id="totp"></div>
+      <p id="countdown"></p>
+    </div>
+  </div> <div id="qrScannerModal" class="qr-modal">
+    <div class="qr-modal-content">
+      <p>Point your camera at the QR code</p>
+      <video id="qrVideo" playsinline></video>
+      <button id="closeScannerBtn">Cancel</button>
+    </div>
+  </div>
+
+  <script src="./jsQR.min.js"></script>
+  <script src="./script.js" defer></script>
+</body>
+</html>

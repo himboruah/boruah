@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ID Card Generator</title>
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <noscript>
+    <div class="noscript">This tool requires JavaScript enabled.</div>
+  </noscript>
+  <main class="container" id="appRoot">
+    <header class="header">
+      <h1>ID Card Generator</h1>
+      <p>Create printable CR80 ID cards safely. No data leaves your browser.</p>
+    </header>
+    <section class="grid">
+      <form class="panel form" id="cardForm" novalidate>
+        <h2>Card Type</h2>
+        <fieldset class="field radios">
+          <legend>Card Type</legend>
+          <label><input type="radio" name="userType" value="student" checked /> Student</label>
+          <label><input type="radio" name="userType" value="staff" /> Staff</label>
+          <label><input type="radio" name="userType" value="general" /> General</label>
+          <label><input type="radio" name="userType" value="custom" /> Custom</label>
+          <div id="customCardTypeContainer" class="inline hidden">
+            <label for="customCardType" class="sr-only">Custom title</label>
+            <input id="customCardType" name="customCardType" type="text" placeholder="e.g., Library Access Card" />
+          </div>
+        </fieldset>
+        <div class="field">
+          <label for="gradientTheme">Header Gradient</label>
+          <select id="gradientTheme" name="gradientTheme">
+            <option value="white">White</option>
+            <option value="blue" selected>Blue</option>
+            <option value="indigo">Indigo</option>
+            <option value="purple">Purple</option>
+            <option value="violet">Violet</option>
+            <option value="magenta">Magenta</option>
+            <option value="pink">Pink</option>
+            <option value="rose">Rose</option>
+            <option value="red">Red</option>
+            <option value="orange">Orange</option>
+            <option value="amber">Amber</option>
+            <option value="yellow">Yellow</option>
+            <option value="lime">Lime</option>
+            <option value="green">Green</option>
+            <option value="emerald">Emerald</option>
+            <option value="teal">Teal</option>
+            <option value="cyan">Cyan</option>
+            <option value="sky">Sky</option>
+            <option value="azure">Azure</option>
+            <option value="gold">Gold</option>
+            <option value="silver">Silver</option>
+            <option value="bronze">Bronze</option>
+            <option value="graphite">Graphite</option>
+          </select>
+        </div>
+        <hr class="form-divider">
+        <h2>Institution Details</h2>
+        <div class="field two">
+          <div>
+            <label for="logoFile">Institution Logo (PNG/JPG, ≤ 20 MB)</label>
+            <input id="logoFile" name="logoFile" type="file" accept="image/*" />
+          </div>
+          <div>
+            <label for="photoFile">Person Photo (PNG/JPG, ≤ 20 MB)</label>
+            <input id="photoFile" name="photoFile" type="file" accept="image/*" />
+          </div>
+        </div>
+        <div class="field">
+            <label for="collegeName">Institution / Company</label>
+            <input id="collegeName" name="collegeName" type="text" placeholder="Acme Institute" required />
+        </div>
+        <div class="field two">
+            <div class="field">
+                <label for="instFont">Font</label>
+                <select id="instFont" name="instFont">
+                    <option value="ui-sans-serif, system-ui, sans-serif">Default</option>
+                    <option value="Crimson">Crimson</option>
+                    <option value="CursiveSerif">CursiveSerif</option>
+                    <option value="Gadner">Gadner</option>
+                    <option value="Kryshna">Kryshna</option>
+                    <option value="LibreBaskerville">LibreBaskerville</option>
+                    <option value="Lora">Lora</option>
+                    <option value="Lusitana">Lusitana</option>
+                    <option value="NotoSerif">NotoSerif</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Progress">Progress</option>
+                    <option value="SourceSerifPro">SourceSerifPro</option>
+                    <option value="custom">-- Load Custom Font --</option>
+                </select>
+                <input type="file" id="customFontPicker" class="hidden" accept=".ttf,.otf,.woff,.woff2">
+            </div>
+            <div class="field">
+                <label for="instFontSize">Font Size (rem)</label>
+                <input type="number" id="instFontSize" name="instFontSize" value="1.75" min="1" max="3" step="0.1">
+            </div>
+        </div>
+        <div class="field">
+          <label for="collegeAddress">Institution Address (Optional)</label>
+          <textarea id="collegeAddress" name="collegeAddress" rows="2" placeholder="123 University Ave, Knowledge City"></textarea>
+        </div>
+        <hr class="form-divider">
+        <h2>Cardholder Details</h2>
+        <div class="field">
+          <label for="personName">Full Name</label>
+          <input id="personName" name="personName" type="text" placeholder="Jane Doe" required />
+        </div>
+        <div class="field">
+          <label for="roleOrDept" id="labelForDept">Role / Department</label>
+          <input id="roleOrDept" name="roleOrDept" type="text" placeholder="Computer Science" />
+        </div>
+        <div class="field two">
+          <div id="rollNoField">
+            <label for="rollNo">Roll No. (students)</label>
+            <input id="rollNo" name="rollNo" type="text" placeholder="CS-23-014" />
+          </div>
+          <div id="employeeIdField" class="hidden">
+            <label for="employeeId">Employee ID (staff)</label>
+            <input id="employeeId" name="employeeId" type="text" placeholder="EMP-1024" />
+          </div>
+        </div>
+        <div class="field two">
+          <div>
+            <label for="dob">D.O.B</label>
+            <input id="dob" name="dob" type="date" />
+          </div>
+          <div>
+            <label for="issuedOn">Issued On</label>
+            <input id="issuedOn" name="issuedOn" type="date" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="validFor">Valid For</label>
+          <input type="text" id="validFor" name="validFor" placeholder="e.g., 1 Year, 6 Months">
+        </div>
+        <div class="field">
+          <label for="address">Address</label>
+          <textarea id="address" name="address" rows="2" placeholder="123, Street Name, City, State, ZIP"></textarea>
+        </div>
+        <div class="actions">
+          <button type="button" id="printBtn" class="secondary">Download PDF</button>
+          <button type="button" id="downloadPngBtn">Download PNG</button>
+          <button type="reset" id="resetBtn" class="ghost">Reset</button>
+        </div>
+        <div id="messageBox" class="messages" aria-live="polite"></div>
+      </form>
+      <section class="panel preview">
+        <h2>Preview</h2>
+        <div id="cardPreview" class="id-card" role="region" aria-label="ID card preview">
+          <div class="id-card-header" id="cardHeader">
+            <div class="logo" id="cardLogoBg" aria-hidden="true"></div>
+            <div class="institution" id="instName">Institution</div>
+            <div class="institution-address" id="instAddress"></div>
+          </div>
+          <div class="id-card-body">
+            <div class="photo" id="personPhoto"></div>
+            <div class="meta">
+              <div class="wm" id="wmLogo" aria-hidden="true"></div>
+              <p class="cardUserType" id="cardTitle">Student Identity Card</p>
+              <div class="kv">
+                <span class="k">Name</span><span class="v" id="vName"></span>
+                <span class="k" id="kDept">Role/Dept</span><span class="v" id="vDept"></span>
+                <span class="k" id="kRoll">Roll No</span><span class="v" id="vRoll"></span>
+                <span class="k hidden" id="kEmp">Employee ID</span><span class="v hidden" id="vEmp"></span>
+                <span class="k">D.O.B</span><span class="v" id="vDob"></span>
+                <span class="k">Issued On</span><span class="v" id="vIssued"></span>
+                <span class="k">Valid For</span><span class="v" id="vValid"></span>
+                <div class="address-row"><span class="k" id="kAddr">Address</span><span class="v" id="vAddr"></span>
+                </div>
+                </div>
+            </div>
+          </div>
+          </div>
+      </section>
+    </section>
+  </main>
+  <script src="./html2canvas.min.js"></script>
+  <script src="./jspdf.umd.min.js"></script>
+  <script src="./script.js" defer></script>
+</body>
+</html>

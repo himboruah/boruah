@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hash Generator</title>
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'sha256-vvt4KWwuNr51XfE5m+hzeNEGhiOfZzG97ccfqGsPwvE=';
+    worker-src 'self';
+    style-src 'self';
+    img-src 'self' data:;
+    connect-src 'self';
+    object-src 'none';
+    base-uri 'none';
+    form-action 'self';
+  ">
+  <meta name="theme-color" content="#0b0f15" />
+  <link rel="stylesheet" href="./style.css" />
+  <script src="./lib/spark-md5.min.js" crossorigin="anonymous"></script>
+  <script src="./lib/sha.js" crossorigin="anonymous"></script>
+  <script src="./lib/sha3.min.js" crossorigin="anonymous"></script>
+  <script src="./lib/hash-wasm.js" crossorigin="anonymous"></script>
+  <script src="./lib/bcryptjs.min.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1>🔐 Hash Generator</h1>
+    <p class="subtitle">Blazing-fast hashes, right in your browser.</p>
+  </header>
+
+  <main class="container" id="main">
+    <section class="input-panel card">
+      <h2 class="sr-only">Input</h2>
+      <div class="form-row">
+        <label for="textInput">Text to hash</label>
+        <textarea id="textInput" rows="6" placeholder="Type or paste text here…"></textarea>
+      </div>
+      <div class="form-row">
+        <label for="fileInput">Or choose a file</label>
+        <input id="fileInput" type="file" />
+        <div class="hint" id="fileMeta" aria-live="polite"></div>
+      </div>
+      <div class="actions">
+        <button id="hashBtn" class="btn primary">Compute</button>
+        <button id="clearBtn" class="btn">Clear</button>
+        <div class="spacer"></div>
+        <label class="inline">
+          <input id="resetOnRun" type="checkbox" checked>
+          Reset results on new run
+        </label>
+      </div>
+    </section>
+
+    <section class="algos card">
+      <h2>Algorithms</h2>
+      <details open>
+        <summary>Common</summary>
+        <div class="grid">
+          <label><input type="checkbox" class="algo" value="MD5"> MD5</label>
+          <label><input type="checkbox" class="algo" value="SHA-1"> SHA-1</label>
+          <label><input type="checkbox" class="algo" value="SHA-256" checked> SHA-256</label>
+          <label><input type="checkbox" class="algo" value="SHA-384"> SHA-384</label>
+          <label><input type="checkbox" class="algo" value="SHA-512"> SHA-512</label>
+        </div>
+      </details>
+
+      <details>
+        <summary>SHA-3 / Keccak / SHAKE</summary>
+        <div class="grid">
+          <label><input type="checkbox" class="algo" value="SHA3-224"> SHA3-224</label>
+          <label><input type="checkbox" class="algo" value="SHA3-256"> SHA3-256</label>
+          <label><input type="checkbox" class="algo" value="SHA3-384"> SHA3-384</label>
+          <label><input type="checkbox" class="algo" value="SHA3-512"> SHA3-512</label>
+          <label><input type="checkbox" class="algo" value="Keccak-224"> Keccak-224</label>
+          <label><input type="checkbox" class="algo" value="Keccak-256"> Keccak-256</label>
+          <label><input type="checkbox" class="algo" value="Keccak-384"> Keccak-384</label>
+          <label><input type="checkbox" class="algo" value="Keccak-512"> Keccak-512</label>
+          <label><input type="checkbox" class="algo" value="SHAKE128"> SHAKE-128 (256-bit)</label>
+          <label><input type="checkbox" class="algo" value="SHAKE256"> SHAKE-256 (256-bit)</label>
+        </div>
+        <div class="hint">SHAKE are XOFs; current output length = 256 bits.</div>
+      </details>
+
+      <details>
+        <summary>Blake / xxHash</summary>
+        <div class="grid">
+          <label><input type="checkbox" class="algo" value="BLAKE3"> BLAKE3</label>
+          <label><input type="checkbox" class="algo" value="BLAKE2b"> BLAKE2b</label>
+          <label><input type="checkbox" class="algo" value="BLAKE2s"> BLAKE2s</label>
+          <label><input type="checkbox" class="algo" value="XXH32"> xxHash32</label>
+          <label><input type="checkbox" class="algo" value="XXH64"> xxHash64</label>
+        </div>
+      </details>
+
+      <details>
+        <summary>Key-derivation / Password hashing</summary>
+        <div class="kdf-grid">
+          <div class="kdf card-sub">
+            <div class="kdf-header">
+              <strong>PBKDF2-HMAC-SHA256</strong>
+              <button class="btn small" data-open="pbkdf2Modal" aria-haspopup="dialog">Configure</button>
+            </div>
+            <label class="warn">Not for file hashing.</label>
+            <label class="inline"><input type="checkbox" class="algo" value="PBKDF2"> Enable</label>
+          </div>
+
+          <div class="kdf card-sub">
+            <div class="kdf-header">
+              <strong>Argon2id</strong>
+              <button class="btn small" data-open="argon2Modal" aria-haspopup="dialog">Configure</button>
+            </div>
+            <label class="warn">Not for file hashing.</label>
+            <label class="inline"><input type="checkbox" class="algo" value="Argon2id"> Enable</label>
+          </div>
+
+          <div class="kdf card-sub">
+            <div class="kdf-header">
+              <strong>scrypt</strong>
+              <button class="btn small" data-open="scryptModal" aria-haspopup="dialog">Configure</button>
+            </div>
+            <label class="warn">Not for file hashing.</label>
+            <label class="inline"><input type="checkbox" class="algo" value="scrypt"> Enable</label>
+          </div>
+
+          <div class="kdf card-sub">
+            <div class="kdf-header">
+              <strong>bcrypt</strong>
+              <button class="btn small" data-open="bcryptModal" aria-haspopup="dialog">Configure</button>
+            </div>
+            <label class="warn">Not for file hashing.</label>
+            <label class="inline"><input type="checkbox" class="algo" value="bcrypt"> Enable</label>
+          </div>
+        </div>
+        <div class="hint">KDFs output a PHC/MCF string for interoperability (bcrypt uses MCF).</div>
+      </details>
+
+      <div class="note">
+        ⚠️ MD5/SHA-1 are <strong>not collision-resistant</strong>. Avoid them for security-sensitive use.
+      </div>
+    </section>
+
+    <section class="verify card">
+      <h2>Verification</h2>
+      <div class="form-row">
+        <label for="knownChecksum">Known checksum (hex)</label>
+        <input id="knownChecksum" type="text" inputmode="latin" placeholder="Paste a known hash to compare…" />
+      </div>
+    </section>
+
+    <section class="verify card">
+      <h2>KDF Verify (PHC/MCF)</h2>
+      <div class="form-row">
+        <label for="verifyPassword">Password</label>
+        <input id="verifyPassword" type="password" placeholder="Enter password to verify" />
+      </div>
+      <div class="form-row">
+        <label for="verifyPHC">Stored PHC/MCF string</label>
+        <input id="verifyPHC" type="text" placeholder="$argon2id$..., $pbkdf2-sha256$..., $scrypt$..., or $2b$..." />
+      </div>
+      <div class="form-row">
+        <label for="verifyPepper">Pepper (optional)</label>
+        <input id="verifyPepper" type="password" placeholder="If the hash was created with a pepper" />
+      </div>
+      <div class="actions">
+        <button id="verifyKdfBtn" class="btn">Verify</button>
+        <div class="spacer"></div>
+        <div id="verifyKdfResult" class="hint" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="results card" aria-live="polite">
+      <h2>Results</h2>
+      <div id="progressWrap" class="progress-wrap hidden" aria-hidden="true">
+        <div id="progressBar" class="progress-bar"></div>
+        <div id="progressLabel" class="progress-label">Waiting…</div>
+      </div>
+      <table class="table" id="resultsTable">
+        <thead>
+          <tr><th>Algorithm</th><th>Hash (hex / PHC / MCF)</th><th>Match</th><th></th></tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+      <div class="results-actions">
+        <button id="copyAllBtn" class="btn">Copy JSON</button>
+        <button id="downloadBtn" class="btn">Download .checksums</button>
+        <div class="spacer"></div>
+        <button id="cancelBtn" class="btn danger" disabled>Cancel</button>
+      </div>
+      <div id="sourceNote" class="hint"></div>
+    </section>
+  </main>
+
+  <dialog id="pbkdf2Modal" aria-label="PBKDF2 configuration">
+    <form method="dialog">
+      <h3>PBKDF2-HMAC-SHA256</h3>
+      <label>Iterations <input id="pbkdf2Iter" type="number" min="1" step="1" value="600000"></label>
+      <label>Salt (hex) <input id="pbkdf2Salt" type="text" placeholder="auto-generated if empty"></label>
+      <label>Pepper (optional) <input id="pbkdf2Pepper" type="password" placeholder="server-side secret"></label>
+      <menu>
+        <button value="cancel" class="btn">Close</button>
+        <button id="genPbkdf2Salt" class="btn">Generate Salt</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="argon2Modal" aria-label="Argon2 configuration">
+    <form method="dialog">
+      <h3>Argon2id</h3>
+      <label>Time cost (t) <input id="argon2Time" type="number" min="1" step="1" value="3"></label>
+      <label>Memory (KiB) <input id="argon2Mem" type="number" min="4096" step="1024" value="65536"></label>
+      <label>Parallelism (p) <input id="argon2Par" type="number" min="1" step="1" value="1"></label>
+      <label>Salt (hex) <input id="argon2Salt" type="text" placeholder="auto-generated if empty"></label>
+      <label>Pepper (optional) <input id="argon2Pepper" type="password" placeholder="server-side secret"></label>
+      <menu>
+        <button value="cancel" class="btn">Close</button>
+        <button id="genArgonSalt" class="btn">Generate Salt</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="scryptModal" aria-label="scrypt configuration">
+    <form method="dialog">
+      <h3>scrypt</h3>
+      <label>log2(N) <input id="scryptLn" type="number" min="1" step="1" value="15"></label>
+      <label>r <input id="scryptR" type="number" min="1" step="1" value="8"></label>
+      <label>p <input id="scryptP" type="number" min="1" step="1" value="1"></label>
+      <label>Length (bytes) <input id="scryptLen" type="number" min="16" step="1" value="32"></label>
+      <label>Salt (hex) <input id="scryptSalt" type="text" placeholder="auto-generated if empty"></label>
+      <label>Pepper (optional) <input id="scryptPepper" type="password" placeholder="server-side secret"></label>
+      <menu>
+        <button value="cancel" class="btn">Close</button>
+        <button id="genScryptSalt" class="btn">Generate Salt</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="bcryptModal" aria-label="bcrypt configuration">
+    <form method="dialog">
+      <h3>bcrypt</h3>
+      <label>Cost (log2 rounds) <input id="bcryptCost" type="number" min="4" max="16" step="1" value="12"></label>
+      <label>Pepper (optional) <input id="bcryptPepper" type="password" placeholder="server-side secret"></label>
+      <div class="hint">Note: bcrypt uses only the first 72 bytes of the password.</div>
+      <menu>
+        <button value="cancel" class="btn">Close</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <footer class="site-footer">
+    <small>© 2025 • Boruah • Hash Generator</small>
+  </footer>
+
+  <script src="./script.js" defer></script>
+</body>
+</html>

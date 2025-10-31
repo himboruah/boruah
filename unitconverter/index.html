@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unit Converter</title>
+    <link rel="stylesheet" href="./main.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Unit Converter</h1>
+
+        <label for="category">Category</label>
+        <div class="custom-select">
+            <select id="category"></select>
+        </div>
+
+        <div class="conversion-block">
+            <div class="input-container">
+                <input type="number" id="inputValue" placeholder="Enter value" />
+                <span id="clearInput" class="clear-button">×</span>
+            </div>
+            <p id="inputFeedback" class="feedback-message"></p>
+            
+            <div class="unit-select-wrapper">
+                <input type="text" id="fromUnitFilter" class="unit-filter" placeholder="Search From Unit">
+                <span id="clearFromUnit" class="clear-button unit-filter-clear">×</span>
+                <select id="fromUnit"></select>
+            </div>
+
+            <span id="flipIcon" title="Flip units">↑↓</span>
+
+            <div class="unit-select-wrapper">
+                <input type="text" id="toUnitFilter" class="unit-filter" placeholder="Search To Unit">
+                <span id="clearToUnit" class="clear-button unit-filter-clear">×</span>
+                <select id="toUnit"></select>
+            </div>
+
+            <div class="result-wrapper">
+                <p id="result" title="Click to copy"></p>
+                <div id="copyPopup">Copied!</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./decimal.min.js"></script>
+    <script src="./units.js"></script>
+    <script src="./converter.js"></script>
+</body>
+</html>

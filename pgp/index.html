@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PGP Key Generator & Tools</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./openpgp.min.js"></script>
+    <script src="./script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>PGP Key Generator & Tools</h1>
+
+        <div class="main-content-wrapper">
+            <div id="keyGenerationWrapper" class="key-generation-wrapper">
+                <div id="keyGenInputSection" class="key-gen-input-section tool-input-section">
+                    <form id="keyForm">
+                        <h2>Generate New Key</h2>
+                        <div id="uidContainer">
+                            <div class="uid-group">
+                                <div class="input-group">
+                                    <label for="name">Name</label>
+                                    <input type="text" id="name" name="name" placeholder="Your Name" class="js-resettable-input uid-input" aria-describedby="nameError" />
+                                </div>
+
+                                <div class="input-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="email" placeholder="Your Email" class="js-resettable-input uid-input" aria-describedby="emailError" autocomplete="email" />
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="addUidBtn" class="helper-btn-secondary">Add another identity (UID)</button>
+
+                        <div id="nameError" class="error-msg" role="alert"></div>
+                        <div id="emailError" class="error-msg" role="alert"></div>
+
+
+                        <div class="input-group">
+                            <label for="passphrase">Passphrase (recommended)</label>
+                            <input type="password" id="passphrase" placeholder="Enter passphrase" class="js-resettable-input" autocomplete="new-password" autocapitalize="off" spellcheck="false" />
+                        </div>
+
+                        <div id="errorMsg" class="error-msg" role="alert"></div>
+
+                        <div id="advancedToggleContainer">
+                            <label id="advancedToggleLabel" for="advancedToggle">
+                                <input type="checkbox" id="advancedToggle" />
+                                <span id="advancedToggleText">Show Advanced Options</span>
+                            </label>
+                        </div>
+
+                        <fieldset id="advancedSection">
+                            <legend>Advanced Options</legend>
+
+                            <div class="input-group">
+                                <label for="keyType">Key Type</label>
+                                <select id="keyType" class="js-resettable-input">
+                                   <option value="ecc" selected>ECC (Recommended)</option>
+                                   <option value="rsa">RSA (Legacy)</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group" id="eccOptions">
+                                <label for="eccCurve">ECC Curve (Primary Key)</label>
+                                <select id="eccCurve" class="js-resettable-input">
+                                    <option value="ed25519" selected>Ed25519 (Modern, Default)</option>
+                                    <option value="curve25519">Curve25519</option>
+                                    <option value="p384">P-384</option>
+                                    <option value="p521">P-521</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group hidden" id="rsaOptions">
+                                <label for="keySize">RSA Key Size</label>
+                                <select id="keySize" class="js-resettable-input">
+                                    <option value="4096" selected>4096 bits (Secure)</option>
+                                    <option value="3072">3072 bits</option>
+                                    <option value="2048">2048 bits (Legacy)</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="expiration">Expiration</label>
+                                <select id="expiration" class="js-resettable-input">
+                                    <option value="31536000" selected>1 Year (Recommended)</option>
+                                    <option value="63072000">2 Years</option>
+                                    <option value="94608000">3 Years</option>
+                                    <option value="157680000">5 Years</option>
+                                    <option value="0">Never Expire</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label id="subkeysToggleLabel" for="subkeysToggle">
+                                    <input type="checkbox" id="subkeysToggle" checked />
+                                    <span id="subkeysToggleText">Generate standard subkeys (for encryption and signing)</span>
+                                </label>
+                            </div>
+
+                        </fieldset>
+
+                        <div class="spacer-10"></div>
+                        <button type="submit" id="generateBtn" disabled>Generate Key</button>
+                    </form>
+                </div>
+                <div id="keyGenOutputSection" class="key-gen-output-section tool-output-section hidden-output" aria-live="polite">
+                    <div class="output">
+                        <h2>Generated Keys</h2>
+
+                        <h3>Public Key</h3>
+                        <pre id="publicKeyOutput" class="key-output js-resettable-output" tabindex="-1"></pre>
+                        <div class="key-info">
+                            <p><strong>Key ID:</strong> <span id="keyIdOutput">N/A</span></p>
+                            <p><strong>Fingerprint:</strong> <span id="fingerprintOutput">N/A</span></p>
+                        </div>
+                        <button id="copyPublicBtn" class="js-action-button" disabled>Copy Public Key</button>
+                        <button id="downloadPublicBtn" class="js-action-button" disabled>Download Public Key</button>
+                        <button id="printSafetySheetBtn" class="js-action-button" disabled>Print Safety Sheet</button>
+
+                        <h3>Private Key</h3>
+                        <div class="private-key-wrapper">
+                            <div id="privateKeyNote" class="key-note">
+                                <strong>Your private key is not shown here for security.</strong> Use the buttons below to copy it to your clipboard or download it as a file. Store it safely offline.
+                            </div>
+                        </div>
+                        <button id="copyPrivateBtn" class="js-action-button" disabled>Copy Private Key</button>
+                        <button id="downloadPrivateBtn" class="js-action-button" disabled>Download Private Key</button>
+                        <button id="forgetPrivateKeyBtn" class="helper-btn js-action-button" disabled>Forget Private Key</button>
+
+                        <br>
+                        <button class="back-to-tool-input-btn" data-target-tool="keyGenerationWrapper">Back to Input</button>
+                        <button id="resetBtn" type="button">Reset & Clear All</button>
+                    </div>
+                </div>
+            </div>
+
+            <button id="toggleToolsBtn" class="toggle-section-btn">Show PGP Tools</button>
+
+            <div id="pgpToolWrapper" class="pgp-tool-wrapper">
+                <div id="toolsContentArea" class="tools-content-area">
+                    <div id="toolsCategorySelector" class="tools-category-selector">
+                        <button class="tool-category-btn" data-target="encryptTool">Encrypt Message</button>
+                        <button class="tool-category-btn" data-target="decryptTool">Decrypt Message</button>
+                        <button class="tool-category-btn" data-target="signTool">Sign Message</button>
+                        <button class="tool-category-btn" data-target="verifyTool">Verify Signature</button>
+                        <button class="tool-category-btn" data-target="revokeTool">Revoke Key</button>
+                    </div>
+
+                    <div id="encryptTool" class="tool-item-container">
+                        <div class="tool-group">
+                            <h3>Encrypt Message</h3>
+                            <div class="tool-input-section">
+                                <textarea id="encryptMessageInput" placeholder="Enter message to encrypt" class="js-resettable-input" autocomplete="off" autocapitalize="off" spellcheck="false" required></textarea>
+                                <textarea id="publicKeyEncryptInput" placeholder="Paste recipient's Public Key here" class="key-input js-resettable-input" autocomplete="off" autocapitalize="off" spellcheck="false" required></textarea>
+                                <button id="useGeneratedPublicKeyBtn" class="helper-btn">Use Generated Public Key</button>
+                                <div class="error-msg" id="encryptError" role="alert"></div>
+                                <button id="encryptBtn">Encrypt</button>
+                            </div>
+                            <div class="tool-output-section hidden-output" aria-live="polite">
+                                <h4>Encrypted Message Output</h4>
+                                <pre id="encryptedMessageOutput" class="key-output js-resettable-output" tabindex="-1"></pre>
+                                <button id="copyEncryptedBtn" class="js-action-button" disabled>Copy Encrypted Message</button>
+                                <button id="downloadEncryptedBtn" class="js-action-button" disabled>Download Encrypted Message</button>
+                                <button class="back-to-tool-input-btn" data-target-tool="encryptTool">Back to Input</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="decryptTool" class="tool-item-container">
+                        <div class="tool-group">
+                            <h3>Decrypt Message</h3>
+                            <div class="tool-input-section">
+                                <textarea id="decryptMessageInput" placeholder="Enter encrypted message" class="js-resettable-input" autocomplete="off" autocapitalize="off" spellcheck="false" required></textarea>
+                                <textarea id="privateKeyDecryptInput" placeholder="Paste your Private Key here" class="key-input js-resettable-input" autocomplete="off" autocapitalize="off" spellcheck="false" required></textarea>
+                                <input type="password" id="passphraseDecryptInput" placeholder="Enter your private key passphrase (if any)" class="js-resettable-input" autocomplete="new-password" autocapitalize="off" spellcheck="false" />
+                                <button id="useGeneratedPrivateKeyBtn" class="helper-btn">Use Generated Private Key</button>
+                                <div class="error-msg" id="decryptError" role="alert"></div>
+                                <button id="decryptBtn">Decrypt</button>
+                            </div>
+                            <div class="tool-output-section hidden-output" aria-live="polite">
+                                <h4>Decrypted Message Output</h4>
+                                <pre id="decryptedMessageOutput" class="key-output js-resettable-output" tabindex="-1"></pre>
+                                <button id="copyDecryptedBtn" class="js-action-button" disabled>Copy Decrypted Message</button>
+                                <button class="back-to-tool-input-btn" data-target-tool="decryptTool">Back to Input</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="signTool" class="tool-item-container">
+                        <div class="tool-group">
+                            <h3>Sign Message</h3>
+                            <div class="tool-input-section">
+                                <textarea id="signMessageInput" placeholder="Enter message to sign" class="js-resettable-input" autocomplete="off" autocapitalize="off" spellcheck="false" required></textarea>
+                                <textarea id="privateKeySignInput" placeholder="Paste your Private Key here" class="key-input js-resettable-input" autocomplete="off" autocapitalize="off" spellcheck="false" required></textarea>
+                                <input type="password" id="passphraseSignInput" placeholder="Enter your private key passphrase (if any)" class="js-resettable-input" autocomplete="new-password" autocapitalize="off" spellcheck="false" />
+                                <button id="useGeneratedPrivateKeySignBtn" class="helper-btn">Use Generated Private Key</button>
+                                <div class="error-msg" id="signError" role="alert"></div>
+                                <button id="signBtn">Sign</button>
+                            </div>
+                            <div class="tool-output-section hidden-output" aria-live="polite">
+                                <h4>Signed Message Output</h4>
+                                <pre id="signedMessageOutput" class="key-output js-resettable-output" tabindex="-1"></pre>
+                                <button id="copySignedBtn" class="js-action-button" disabled>Copy Signed Message</button>
+                                <button id="downloadSignedBtn" class="js-action-button" disabled>Download Signed Message</button>
+                                <button class="back-to-tool-input-btn" data-target-tool="signTool">Back to Input</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="verifyTool" class="tool-item-container">
+                        <div class="tool-group">
+                            <h3>Verify Signature</h3>
+                            <div class="tool-input-section">
+                                <textarea id="signatureVerifyInput" placeholder="Paste signed message (or detached .sig file) here" class="js-resettable-input" autocomplete="off" autocapitalize="off" spellcheck="false" required></textarea>
+                                <textarea id="originalMessageVerifyInput" placeholder="If using a detached signature, paste the original, unsigned message here" class="js-resettable-input" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+                                <textarea id="publicKeyVerifyInput" placeholder="Paste sender's Public Key here" class="key-input js-resettable-input" autocomplete="off" autocapitalize="off" spellcheck="false" required></textarea>
+                                <div class="error-msg" id="verifyError" role="alert"></div>
+                                <button id="verifyBtn">Verify</button>
+                            </div>
+                            <div class="tool-output-section hidden-output" aria-live="polite">
+                                <h4>Verification Result</h4>
+                                <pre id="verifyResultOutput" class="key-output js-resettable-output" tabindex="-1" role="status"></pre>
+                                <button class="back-to-tool-input-btn" data-target-tool="verifyTool">Back to Input</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="revokeTool" class="tool-item-container">
+                        <div class="tool-group">
+                            <h3>Revoke Key</h3>
+                            <div class="tool-input-section">
+                                <textarea id="revokeKeyInput" placeholder="Paste your Private Key to revoke" class="js-resettable-input" autocomplete="off" autocapitalize="off" spellcheck="false" required></textarea>
+                                <input type="password" id="passphraseRevokeInput" placeholder="Enter your private key passphrase (if any)" class="js-resettable-input" autocomplete="new-password" autocapitalize="off" spellcheck="false" />
+                                <button id="useGeneratedPrivateKeyRevokeBtn" class="helper-btn">Use Generated Private Key</button>
+                                <div class="error-msg" id="revokeError" role="alert"></div>
+                                <button id="revokeBtn">Generate Revocation Certificate</button>
+                            </div>
+                            <div class="tool-output-section hidden-output" aria-live="polite">
+                                <h4>Revocation Results</h4>
+                                <p class="key-info">Distribute the <strong>Updated Public Key</strong> to key servers to publicly revoke your identity. Keep the <strong>Detached Certificate</strong> as an offline backup.</p>
+
+                                <h5>Updated Public Key (with Revocation)</h5>
+                                <pre id="revokedPublicKeyOutput" class="key-output js-resettable-output" tabindex="-1"></pre>
+                                <button id="copyRevokedPublicKeyBtn" class="js-action-button" disabled>Copy Updated Key</button>
+                                <button id="downloadRevokedPublicKeyBtn" class="js-action-button" disabled>Download Updated Key</button>
+
+                                <h5 class="mt-20">Detached Revocation Certificate</h5>
+                                <pre id="revocationCertOutput" class="key-output js-resettable-output" tabindex="-1"></pre>
+                                <button id="copyRevokeCertBtn" class="js-action-button" disabled>Copy Certificate</button>
+                                <button id="downloadRevokeCertBtn" class="js-action-button" disabled>Download Certificate</button>
+
+                                <button class="back-to-tool-input-btn mt-20" data-target-tool="revokeTool">Back to Input</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="singleBackToToolsBtn" class="back-to-tools-btn hidden">Back to Tools</button>
+        </div>
+    </div>
+</body>
+</html>

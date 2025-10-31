@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QR Code Generator + Reader</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="viewport">
+    <div id="sliderTrack" class="track">
+
+      <section id="panel1" class="panel" aria-hidden="false" tabindex="-1">
+        <div class="container">
+          <h1>QR Code Generator</h1>
+          
+          <div class="data-type-tabs">
+            <button class="tab-btn active" data-form="textForm">Text / URL</button>
+            <button class="tab-btn" data-form="wifiForm">Wi-Fi</button>
+            <button class="tab-btn" data-form="contactForm">Contact</button>
+            <button class="tab-btn" data-form="smsForm">SMS</button>
+            <button class="tab-btn" data-form="geoForm">Geo</button>
+            <button class="tab-btn" data-form="calendarForm">Event</button>
+          </div>
+          
+          <div id="formContainer">
+            <div id="textForm" class="form-content active">
+              <input type="text" id="textInput" placeholder="Enter text or URL" />
+            </div>
+            <div id="wifiForm" class="form-content hidden">
+              <div class="form-grid">
+                <input type="text" id="wifiSsid" placeholder="Network Name (SSID)" />
+                <input type="password" id="wifiPass" placeholder="Password" />
+                <select id="wifiEnc">
+                  <option value="WPA">WPA/WPA2</option>
+                  <option value="WEP">WEP</option>
+                  <option value="nopass">None</option>
+                </select>
+              </div>
+            </div>
+            <div id="contactForm" class="form-content hidden">
+              <div class="form-grid">
+                <input type="text" id="contactName" placeholder="Name" />
+                <input type="tel" id="contactPhone" placeholder="Phone" />
+                <input type="email" id="contactEmail" placeholder="Email" />
+                <input type="url" id="contactUrl" placeholder="Website" />
+              </div>
+            </div>
+            <div id="smsForm" class="form-content hidden">
+              <div class="form-grid">
+                  <input type="tel" id="smsPhone" placeholder="Phone Number" />
+                  <textarea id="smsBody" placeholder="Message" rows="3"></textarea>
+              </div>
+            </div>
+            <div id="geoForm" class="form-content hidden">
+                <div class="form-grid two-col">
+                    <input type="number" id="geoLat" placeholder="Latitude" step="any" />
+                    <input type="number" id="geoLon" placeholder="Longitude" step="any" />
+                </div>
+            </div>
+            <div id="calendarForm" class="form-content hidden">
+                <div class="form-grid two-col">
+                    <input type="text" id="eventTitle" placeholder="Event Title" />
+                    <input type="text" id="eventLocation" placeholder="Location" />
+                    <label for="eventStart">Start Time:</label>
+                    <input type="datetime-local" id="eventStart" />
+                    <label for="eventEnd">End Time:</label>
+                    <input type="datetime-local" id="eventEnd" />
+                </div>
+            </div>
+          </div>
+
+          <div class="custom-options">
+            <div class="option-group">
+              <label for="qrDarkColor">Color:</label>
+              <input type="color" id="qrDarkColor" value="#000000" />
+            </div>
+            <div class="option-group">
+              <label for="qrLightColor">Background:</label>
+              <input type="color" id="qrLightColor" value="#ffffff" />
+            </div>
+            <div class="option-group">
+              <label for="qrErrorCorrection">Resilience:</label>
+              <select id="qrErrorCorrection">
+                <option value="L">Low (7%)</option>
+                <option value="M" selected>Medium (15%)</option>
+                <option value="Q">Quartile (25%)</option>
+                <option value="H">High (30%)</option>
+              </select>
+            </div>
+            <div class="option-group">
+              <label for="qrSize">Size:</label>
+              <input type="range" id="qrSize" min="256" max="2048" value="1000" step="128" />
+              <span id="qrSizeValue">1000px</span>
+            </div>
+          </div>
+          
+          <button id="generateButton" class="btn" disabled>Generate QR Code</button>
+
+          <div id="qrContainer" class="qr-container hidden">
+            <canvas id="qrCanvas" width="450" height="450"></canvas>
+          </div>
+
+          <div class="buttons-row">
+            <a id="downloadLink" class="btn btn-download hidden">Download PNG</a>
+            <a id="downloadSvgLink" class="btn btn-download hidden">Download SVG</a>
+            <button id="resetButton" class="btn btn-reset hidden">Reset</button>
+          </div>
+
+          <p id="errorMsg" class="error-message hidden">⚠️ Failed to generate QR code. Please try again.</p>
+        </div>
+        <button class="switcher switcher--right" data-target="panel2" aria-label="Open QR Code Reader">
+          <span>Reader</span>
+        </button>
+      </section>
+
+      <section id="panel2" class="panel" aria-hidden="true" tabindex="-1">
+        <div class="container scanner">
+          <h2>QR Code Reader</h2>
+
+          <div id="supportNotice" class="notice hidden"></div>
+
+          <div class="toggle-switch">
+            <input type="checkbox" id="continuousScan" />
+            <label for="continuousScan">Continuous Scan</label>
+          </div>
+
+          <div class="buttons-row">
+            <button id="toggleScanBtn" class="btn">Start Scanner</button>
+            <button id="torchBtn" class="btn hidden">🔦</button>
+            <label class="btn" for="imageInput">From Image</label>
+            <input id="imageInput" type="file" accept="image/*" class="hidden-input" />
+          </div>
+
+          <div id="dropZone" class="drop-zone">
+            Or drag & drop an image file here
+          </div>
+          
+          <div id="videoWrap" class="video-wrap hidden">
+            <video id="video" playsinline autoplay muted></video>
+          </div>
+
+          <div id="resultDisplay" class="hidden">
+            <textarea id="scanResult" readonly rows="4"></textarea>
+            <div id="actionBtnsContainer" class="buttons-row">
+              <button id="copyBtn" class="btn">Copy</button>
+              <button id="readerResetBtn" class="btn btn-reset">Reset</button>
+            </div>
+          </div>
+
+          <canvas id="captureCanvas" class="hidden" width="1280" height="720"></canvas>
+        </div>
+        <button class="switcher switcher--left" data-target="panel1" aria-label="Open QR Code Generator">
+          <span>Generator</span>
+        </button>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="./qrcode.min.js"></script>
+  <script src="./jsqr.min.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Password Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="card" role="main">
+    <h1 class="title">Secure Password Generator</h1>
+    <section class="controls" aria-labelledby="generator-controls">
+      <h2 id="generator-controls" class="sr-only">Generator Controls</h2>
+      <div class="row">
+        <label for="length">Length</label>
+        <input id="length" type="number" min="1" max="128" value="16" />
+        <small class="note">Maximum length: 128 characters</small>
+      </div>
+      <fieldset class="row checkgroup">
+        <legend>Character sets</legend>
+        <label><input id="lowercase" type="checkbox" checked /> Lowercase (a–z)</label>
+        <label><input id="uppercase" type="checkbox" checked /> Uppercase (A–Z)</label>
+        <label><input id="numbers" type="checkbox" checked /> Numbers (0–9)</label>
+        <label><input id="symbols" type="checkbox" checked /> Symbols</label>
+      </fieldset>
+      <div class="row">
+        <label for="exclude">Exclude characters</label>
+        <input id="exclude" type="text" placeholder="e.g., O0l1|{}[]()<>" />
+      </div>
+      <div class="row checkbox">
+        <label>
+          <input id="excludeLookalikes" type="checkbox" />
+          Exclude look-alikes (O/0, l/1/I, {}[]()&lt;&gt;, etc.)
+        </label>
+      </div>
+      <div class="row">
+        <label for="batchCount">How many?</label>
+        <input id="batchCount" type="number" min="1" max="20" value="1" />
+      </div>
+      <div class="actions">
+        <button id="generateButton" type="button" class="btn primary">Generate</button>
+        <button id="copyButton" type="button" class="btn">Copy</button>
+        <button id="downloadButton" type="button" class="btn">Download</button>
+        <button id="resetButton" type="button" class="btn danger">Reset</button>
+      </div>
+    </section>
+    <section class="output">
+      <div class="pw-wrap">
+        <input id="password" class="pw" type="password" readonly aria-live="polite" aria-atomic="true" autocomplete="new-password" />
+        <button id="pwToggle" class="pw-toggle" type="button" aria-label="Show password" aria-pressed="false" title="Show/Hide password">
+          <svg class="icon eye" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg class="icon eye-off" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5 20 1 12 1 12a21.77 21.77 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.77 21.77 0 0 1-3.87 5.09"/>
+            <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+      </div>
+      <div id="copyStatus" class="status" role="status"></div>
+    </section>
+    <section class="strength" aria-labelledby="strength-label">
+      <h2 id="strength-label" class="sr-only">Password Strength</h2>
+      <div class="meter-wrap" aria-label="Estimated strength">
+        <div id="strengthBar" class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+      </div>
+      <div class="strength-info">
+        <span id="strengthText" class="badge">—</span>
+        <span id="entropyText" class="entropy">Entropy: —</span>
+      </div>
+      <ul class="set-checks" aria-label="Included character sets">
+        <li id="check-lower">Lowercase</li>
+        <li id="check-upper">Uppercase</li>
+        <li id="check-num">Numbers</li>
+        <li id="check-sym">Symbols</li>
+      </ul>
+    </section>
+    <section class="history" aria-labelledby="history-label" hidden>
+      <h2 id="history-label">Batch Results</h2>
+      <div id="batchList" class="batch-list" role="list" aria-live="polite"></div>
+    </section>
+    <p class="footnote" id="envWarning" role="alert" hidden>
+      Secure features require HTTPS. Open this page over <strong>https://</strong> to enable secure random numbers and clipboard.
+    </p>
+  </main>
+  <script src="./script.js" defer></script>
+</body>
+</html>
